@@ -55,23 +55,51 @@ def validate(color_sets):
     
     return True
 
-sum_possible = 0
+def build(file_path):
+    with open(file_path, 'r') as file:
+        for idx, line in enumerate(file, start=1):
+            # Parse the line into game id and colors
+            game_id, color_groups = line.strip().split(':')
+            # Add the game id and color sets to the dictionary
+            game_dict[idx] = parse_line(color_groups)
 
-with open(file_path, 'r') as file:
-    for idx, line in enumerate(file, start=1):
-        # Parse the line into game id and colors
-        game_id, color_groups = line.strip().split(':')
-         # Add the game id and color sets to the dictionary
-        game_dict[idx] = parse_line(color_groups)
 
+
+def solve_part1(game_dict):
+    sum_possible = 0
+    for idx, __ in enumerate(game_dict, start=1):
         line_possible = validate(game_dict[idx])
 
         if line_possible:
             sum_possible += idx
-            print(f"Game {game_id} is valid")
-        else:
-            print(f"Game {game_id} is invalid")
-    
 
-print(f"Total valid games: {sum_possible}")
+    print(f"Total valid games: {sum_possible}")
+    return sum_possible
+    
+def solve_part2(game_dict):
+
+    sum_of_powers = 0
+    for color_sets in game_dict.values():
+        cur_max_red = 0
+        cur_max_green = 0
+        cur_max_blue = 0
+        for color_set in color_sets:
+            if color_set[0] > cur_max_red:
+                cur_max_red = color_set[0]
+            if color_set[1] > cur_max_green:
+                cur_max_green = color_set[1]
+            if color_set[2] > cur_max_blue:
+                cur_max_blue = color_set[2]
+
+        #assuming no 0s in the game sets
+        sum_of_powers += (cur_max_red * cur_max_green * cur_max_blue)
+    
+    print(f"Total sum of powers: {sum_of_powers}")
+    return sum_of_powers
+
+
+build(file_path)
+solve_part1(game_dict)
+solve_part2(game_dict)
+
 
