@@ -32,6 +32,7 @@ def parse_color_group(group):
 
     return int(r), int(g), int(b)
 
+
 # Open the input file and iterate over each line
 def parse_line(color_groups):
     color_sets = []
@@ -46,35 +47,34 @@ def parse_line(color_groups):
 
     return color_sets
 
+
 def validate(color_sets):
     for color_set in color_sets:
-        if ((color_set[0] > max_red) or
-            (color_set[1] > max_green) or
-            (color_set[2] > max_blue)):
+        red, green, blue = color_set
+        
+        if red > max_red or green > max_green or blue > max_blue:
             return False
-    
+        
     return True
+
 
 def build(file_path):
     with open(file_path, 'r') as file:
         for idx, line in enumerate(file, start=1):
-            # Parse the line into game id and colors
             game_id, color_groups = line.strip().split(':')
-            # Add the game id and color sets to the dictionary
             game_dict[idx] = parse_line(color_groups)
 
 
 
 def solve_part1(game_dict):
     sum_possible = 0
-    for idx, __ in enumerate(game_dict, start=1):
-        line_possible = validate(game_dict[idx])
-
-        if line_possible:
+    for idx, _ in enumerate(game_dict, start=1):
+        if validate(game_dict[idx]):
             sum_possible += idx
 
     print(f"Total valid games: {sum_possible}")
     return sum_possible
+
     
 def solve_part2(game_dict):
 
@@ -83,13 +83,11 @@ def solve_part2(game_dict):
         cur_max_red = 0
         cur_max_green = 0
         cur_max_blue = 0
+
         for color_set in color_sets:
-            if color_set[0] > cur_max_red:
-                cur_max_red = color_set[0]
-            if color_set[1] > cur_max_green:
-                cur_max_green = color_set[1]
-            if color_set[2] > cur_max_blue:
-                cur_max_blue = color_set[2]
+            cur_max_red = max(cur_max_red, color_set[0])
+            cur_max_green = max(cur_max_green, color_set[1])
+            cur_max_blue = max(cur_max_blue, color_set[2])
 
         #assuming no 0s in the game sets
         sum_of_powers += (cur_max_red * cur_max_green * cur_max_blue)
