@@ -18,6 +18,10 @@ class NumberEntry:
     End = 0
     Include = False
 
+class SymbolEntry:
+    Symbol = ""
+    Index = 0
+
 NumberEntrys = []
 SymbolEntrys = {}
 
@@ -44,11 +48,14 @@ def build(file_path):
                 NumberEntrys.append(numberEntry)
 
             symbols = re.finditer(r'[&\+\-#\@\$*/%=]', line)
-            symbolLoc = []
+            symbolEntrys = []
             for symbol in symbols:
-                symbolLoc.append(symbol.start())
+                symbolEntry = SymbolEntry()
+                symbolEntry.Index = symbol.start()
+                symbolEntry.Symbol = symbol.group()
+                symbolEntrys.append(symbolEntry)
            
-            SymbolEntrys[idx] = symbolLoc  
+            SymbolEntrys[idx] = symbolEntrys  
 
         
 def find_includes():
@@ -62,8 +69,8 @@ def find_includes():
             continue
         
         #Check Left and Right
-        for symbol in SymbolEntrys[number.Line]:
-            if (symbol == number.Start-1) or (symbol == number.End+1):
+        for symbolEntry in SymbolEntrys[number.Line]:
+            if (symbolEntry.Index == number.Start-1) or (symbolEntry.Index == number.End+1):
                 number.Include = True
                 break
         
@@ -79,7 +86,7 @@ def find_includes():
 def include_overlap(number, line_number):
     for symbol in SymbolEntrys[line_number]:
         #if symbol is in the range of number.start-1 to number.end+1 then include
-        if (symbol >= number.Start-1) and (symbol <= number.End+1):
+        if (symbol.Index >= number.Start-1) and (symbol.Index <= number.End+1):
             number.Include = True
             break
 
