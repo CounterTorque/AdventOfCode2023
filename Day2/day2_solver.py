@@ -2,7 +2,7 @@ import os
 import re
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-file_path = os.path.join(current_dir, "input")
+file_path = os.path.join(current_dir, "input.txt")
 
 max_red = 12
 max_green = 13

@@ -3,7 +3,7 @@ import re
 
 # Get the path of the current script
 current_dir = os.path.dirname(os.path.abspath(__file__))
-file_path = os.path.join(current_dir, "input")
+file_path = os.path.join(current_dir, "input.txt")
 
 word_to_number = {
     "one": 1,
