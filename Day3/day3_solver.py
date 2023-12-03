@@ -1,126 +1,112 @@
 import os
 import re
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-file_path = os.path.join(current_dir, "input.txt")
+base_dir = os.path.dirname(os.path.abspath(__file__))
+file_path = os.path.join(base_dir, "input.txt")
 
-#Line width excluding new line
-LINE_WIDTH = 140
-SYMBOLS = "&+-#@$*/%="
-
-# run through each line in the input
-#create a list of NumberEntry of nummbers found
 class NumberEntry:
-    Line = 0
-    Number = 0
-    NumberWord = ""
-    Start = 0
-    End = 0
-    Include = False
+    def __init__(self, Line, NumberString, Start):
+        self.Line = Line
+        self.Number = int(NumberString)
+        self.Start = Start
+        self.End = Start + len(NumberString)-1
+        self.Include = False
 
 class SymbolEntry:
-    Line = 0
-    Symbol = ""
-    Index = 0
-    GearNumbers = []
+    def __init__(self, Line, Symbol, Index):
+        self.Line = Line
+        self.Symbol = Symbol
+        self.Index = Index
+        self.GearNumbers = []
 
-NumberEntrysByLine = {}
-SymbolEntrysByLine = {}
+number_entries_by_line = {}
+symbol_entries_by_line = {}
 
 def build(file_path):    
     with open(file_path, 'r') as file:
-        for idx, line in enumerate(file, start=0):
+        for idx, line in enumerate(file):
             numbers = re.findall(r'\d+', line)
-            locations = []
+            number_locations = []
             for num in numbers:
-                locations.append(line.index(num))
-                #update line to replace num with spaces
+                number_locations.append(line.index(num))
+                #update line to replace num with spaces to avoid incorrect index
                 line = line.replace(num, ' '*len(num), 1)
 
-            numberEntrys = []
-            for number, loc in zip(numbers, locations):
-                numberEntry = NumberEntry()
-                numberEntry.Line = idx
-                numberEntry.Number = int(number)
-                numberEntry.NumberWord = number
-                numberEntry.Start = loc
-                numberEntry.End = loc + len(number)-1
-                numberEntry.Include = False
-                numberEntrys.append(numberEntry)
-
-            NumberEntrysByLine[idx] = numberEntrys
+            number_entries = [NumberEntry(idx, number, loc) for number, loc in zip(numbers, number_locations)]
+            number_entries_by_line[idx] = number_entries
 
             symbols = re.finditer(r'[&\+\-#\@\$*/%=]', line)
-            symbolEntrys = []
-            for symbol in symbols:
-                symbolEntry = SymbolEntry()
-                symbolEntry.Line = idx
-                symbolEntry.Index = symbol.start()
-                symbolEntry.Symbol = symbol.group()
-                symbolEntry.GearNumbers = []
-                symbolEntrys.append(symbolEntry)
+            symbol_entries = [SymbolEntry(idx, symbol.group(), symbol.start()) for symbol in symbols]
            
-            SymbolEntrysByLine[idx] = symbolEntrys  
+            symbol_entries_by_line[idx] = symbol_entries  
+       
 
-        
-def find_includes():
-    for line in NumberEntrysByLine:
-        for number in NumberEntrysByLine[line]:
-            #Check Above
-            if number.Line > 0:
-                line_above = number.Line - 1
-                include_overlap(number, line_above)
+def find_includes(number_entries_by_line):
+    for line, number_entries in number_entries_by_line.items():
+        for number_entry in number_entries:
+            check_above(number_entry)
+            check_left_and_right(number_entry)
+            check_below(number_entry)
             
-            #Check Left and Right
-            for symbolEntry in SymbolEntrysByLine[number.Line]:
-                if (symbolEntry.Index == number.Start-1) or (symbolEntry.Index == number.End+1):
-                    number.Include = True
-                    symbolEntry.GearNumbers.append(number.Number)
 
-            #Check Below
-            if number.Line < len(SymbolEntrysByLine) - 1:
-                line_below = number.Line + 1
-                include_overlap(number, line_below)
+def check_above(number_entry):
+    if number_entry.Line > 0:
+        line_above = number_entry.Line - 1
+        include_overlap(number_entry, line_above)
+        
 
+def check_left_and_right(number_entry):
+    for symbol_entry in symbol_entries_by_line[number_entry.Line]:
+        if (symbol_entry.Index == number_entry.Start - 1) or (symbol_entry.Index == number_entry.End + 1):
+            number_entry.Include = True
+            symbol_entry.GearNumbers.append(number_entry.Number)
+            
 
-def include_overlap(number, line_number):
-    for symbolEntry in SymbolEntrysByLine[line_number]:
-        #if symbol is in the range of number.start-1 to number.end+1 then include
-        if (symbolEntry.Index >= number.Start-1) and (symbolEntry.Index <= number.End+1):
-            number.Include = True
-            symbolEntry.GearNumbers.append(number.Number)
-
-
-def sum_includes():
-    sum = 0
-    for line in NumberEntrysByLine:
-        for number in NumberEntrysByLine[line]:
-            if number.Include:
-                sum += number.Number
-    print(sum)
+def check_below(number_entry):
+    if number_entry.Line < len(symbol_entries_by_line) - 1:
+        line_below = number_entry.Line + 1
+        include_overlap(number_entry, line_below)
 
 
-def calculate_gears():
-   sum = 0
-   for line in SymbolEntrysByLine:
-       for symbolEntry in SymbolEntrysByLine[line]:
-           if symbolEntry.Symbol != '*':
+def include_overlap(number_entry, line_number):
+    for symbol_entry in symbol_entries_by_line[line_number]:
+        if (symbol_entry.Index >= number_entry.Start-1) and (symbol_entry.Index <= number_entry.End+1):
+            number_entry.Include = True
+            symbol_entry.GearNumbers.append(number_entry.Number)
+
+
+def sum_includes(number_entries_by_line):
+    total_sum = 0
+    for line in number_entries_by_line:
+        for number_entry in number_entries_by_line[line]:
+            if number_entry.Include:
+                total_sum += number_entry.Number
+    print(total_sum)
+
+
+def calculate_gears(symbol_entries_by_line):
+   total_sum = 0
+   for line in symbol_entries_by_line:
+       for symbol_entry in symbol_entries_by_line[line]:
+           if symbol_entry.Symbol != '*':
                continue
            
-           if len(symbolEntry.GearNumbers) != 2:
+           if len(symbol_entry.GearNumbers) != 2:
                continue
            
-           gear_ratio = symbolEntry.GearNumbers[0] * symbolEntry.GearNumbers[1]
-           sum += gear_ratio
+           gear_ratio = symbol_entry.GearNumbers[0] * symbol_entry.GearNumbers[1]
+           total_sum += gear_ratio
            
-   print(sum)
+   print(total_sum)
 
 
 build(file_path)
 
 #Part 1
-find_includes()
-sum_includes()
+find_includes(number_entries_by_line)
+sum_includes(number_entries_by_line)
+#546312
 
 #Part 2
-calculate_gears()
+calculate_gears(symbol_entries_by_line)
+#87449461
