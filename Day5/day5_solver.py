@@ -33,12 +33,12 @@ class LookupMap:
         self.RangeLength = range_length
 
 
-
 def init_seeds(seed_set, seed_strings):
     for seed in seed_strings:
         next_seed = SeedData()
         next_seed.SeedNumber = int(seed)
         seed_set.append(next_seed)
+
 
 def extract_data(file_path): 
     seed_set = []
@@ -69,6 +69,12 @@ def extract_data(file_path):
 def build_full_seed(seed_set, lookup_maps):
     for seed in seed_set:
         seed.Soil = find_item(seed.SeedNumber, lookup_maps["seed-to-soil map:"])
+        seed.Fertilizer = find_item(seed.Soil, lookup_maps["soil-to-fertilizer map:"])
+        seed.Water = find_item(seed.Fertilizer, lookup_maps["fertilizer-to-water map:"])
+        seed.Light = find_item(seed.Water, lookup_maps["water-to-light map:"])
+        seed.Temperature = find_item(seed.Light, lookup_maps["light-to-temperature map:"])
+        seed.Humidity = find_item(seed.Temperature, lookup_maps["temperature-to-humidity map:"])
+        seed.Location = find_item(seed.Humidity, lookup_maps["humidity-to-location map:"])
        
 
 def find_map_index(search, lookup_map):
@@ -80,7 +86,6 @@ def find_map_index(search, lookup_map):
 
 
 def find_item(search_number, lookup_maps):
-    # For each map, check if the seed number is in the range between source and source + range_length
     for lookup_map in lookup_maps:
         index = find_map_index(search_number, lookup_map)
         if (index != -1):
@@ -89,6 +94,7 @@ def find_item(search_number, lookup_maps):
     return search_number
 
 
-
 seed_set, lookup_maps = extract_data(file_path)
 build_full_seed(seed_set, lookup_maps)
+lowest_location = min(seed.Location for seed in seed_set)
+print(lowest_location)
