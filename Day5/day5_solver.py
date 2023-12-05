@@ -26,41 +26,69 @@ class SeedData:
 
 
 class LookupMap:
-    def __init__(self, category, destination, source, start):
+    def __init__(self, category, destination, source, range_length):
         self.Category = category
         self.Destination = destination
         self.Source = source
-        self.Start = start
+        self.RangeLength = range_length
 
-seed_set = []
-lookup_maps = {}
 
-def init_seeds(seed_strings):
+
+def init_seeds(seed_set, seed_strings):
     for seed in seed_strings:
         next_seed = SeedData()
         next_seed.SeedNumber = int(seed)
         seed_set.append(next_seed)
 
-def build(file_path): 
+def extract_data(file_path): 
+    seed_set = []
+    lookup_maps = {}
     with open(file_path, 'r') as file:
         cur_key = ""
         for idx, line in enumerate(file):
             line = line.strip()
             if (idx == 0):
                 seed_strings = re.findall(r'\d+', line)
-                init_seeds(seed_strings)
+                init_seeds(seed_set, seed_strings)
                 continue
 
             if line in key_names:
-                cur_key = line.strip()                    
+                cur_key = line.strip()    
+                lookup_maps[cur_key] = []                
                 continue
             elif line == "":
                 continue
             else:
-                dest, source, start = line.split(" ")
-                lookup_map = LookupMap(cur_key, dest, source, start)
-                lookup_maps[cur_key] = lookup_map
+                dest, source, range_length = line.split(" ")
+                lookup_map = LookupMap(cur_key, int(dest), int(source), int(range_length))
+                lookup_maps[cur_key].append(lookup_map)
+    
+    return seed_set, lookup_maps
 
         
+def build_full_seed(seed_set, lookup_maps):
+    for seed in seed_set:
+        seed.Soil = find_item(seed.SeedNumber, lookup_maps["seed-to-soil map:"])
+       
 
-build(file_path)
+def find_map_index(search, lookup_map):
+    if (lookup_map.Source <= search) and (search < lookup_map.Source + lookup_map.RangeLength):
+        offset = search - lookup_map.Source
+        return lookup_map.Destination + offset
+    
+    return -1
+
+
+def find_item(search_number, lookup_maps):
+    # For each map, check if the seed number is in the range between source and source + range_length
+    for lookup_map in lookup_maps:
+        index = find_map_index(search_number, lookup_map)
+        if (index != -1):
+            return index
+        
+    return search_number
+
+
+
+seed_set, lookup_maps = extract_data(file_path)
+build_full_seed(seed_set, lookup_maps)
