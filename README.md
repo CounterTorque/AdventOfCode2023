@@ -8,7 +8,7 @@ So please, if you see any code that is not pythonic or overly complex, know I'm 
 ## Organization
 Each solution is in a numeric folder named by `Day#`
 In each folder will be an `input.txt`, which captures the provided input file
-Along with a Python file in the format of `day#_solver1.py`
+Along with a Python file in the format of `day#_solver.py`
 If there are ever multiple solution attempts, the solver number will increment
 
 ## Execution
@@ -16,4 +16,4 @@ Each Python file is stand-alone and expects the input.txt file to be at the same
 When run, the solution answers will be printed to the console
 
 ## Tests
-If tests exist, they are pytest and are located in the root folder of all days, organized by `test_day#_solver1.py`.
+If tests exist, they are pytest and are located in the root folder of all days, organized by `test_day#_solver.py`.
