@@ -4,7 +4,7 @@ import re
 base_dir = os.path.dirname(os.path.abspath(__file__))
 file_path = os.path.join(base_dir, "input.txt")
 
-card_names = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"]
+card_names = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2", "J"]
 FIVE_OF_A_KIND = 6
 FOUR_OF_A_KIND = 5
 FULL_HOUSE = 4
@@ -27,6 +27,13 @@ class Hand:
     
    
     def calculate_rank(self):
+        # To handle jokers
+        # find highest count of any other card
+        # replace jokers with that card
+        # if there is a tie for the highest count of any other card, use the highest individual value
+
+
+
         distinct_cards = set(self.Hand)
         if (len(distinct_cards) == 1): 
             return FIVE_OF_A_KIND
