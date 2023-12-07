@@ -30,28 +30,30 @@ class Hand:
         self.Cards = cards
         self.Hand = self.parse_cards(cards)
         self.bid = bid
-        self.rank = self.calculate_rank()
-
+        self.WildCards, self.WildHand = self.calculate_wild(cards, self.Hand)
+        self.hand_type = self.calculate_hand_type()
+   
 
     def parse_cards(self, cards):
         return [card_names.index(card) for card in cards]
     
-    def wild_hand(self):
-        if not re.search(r'J', self.Cards):
-            return self.Cards, self.Hand
+    def calculate_wild(self, cards, hand):
+        if not re.search(r'J', cards):
+            return cards, hand
         
-        #part 2 only
-         # find highest count of any other card (if tie use highest value)
-        #sort the cards by value first, so we can just use the top hit to solve ties
-        cards_sorted = self.Cards #TODO
-        
-        best_card_letter = most_common_character(cards_sorted)
+       
+        #Bug Most common character should not be allowed to be J
+        #if all 5 are J then it should be A's
+        best_card_letter = "A"
+        if (len(set(hand)) > 1):
+            hand_sorted = sorted(hand)
+            cards_sorted = [card_names[card_id] for card_id in hand_sorted if card_id != card_names.index("J")] 
+            best_card_letter = most_common_character(cards_sorted)
         best_card_num = card_names.index(best_card_letter)
-        
 
         card_adj = ""
         hand_adj = []
-        for card_id in self.Hand:
+        for card_id in hand:
             if card_id == card_names.index("J"):
                 card_adj += best_card_letter
                 hand_adj.append(best_card_num)
@@ -62,26 +64,23 @@ class Hand:
 
         return card_adj, hand_adj
    
-    def calculate_rank(self):
-        cards_adj, hand_adj = self.wild_hand()
+    def calculate_hand_type(self):
 
-
-
-        distinct_cards = set(hand_adj)
+        distinct_cards = set(self.WildHand)
         if (len(distinct_cards) == 1): 
             return FIVE_OF_A_KIND
        
         if (len(distinct_cards) == 2):
-            count_card1 = len(re.findall(re.escape(cards_adj[0]), cards_adj))
+            count_card1 = len(re.findall(re.escape(self.WildCards[0]), self.WildCards))
             if (count_card1 == 4 or count_card1 == 1):
                 return FOUR_OF_A_KIND
                         
             return FULL_HOUSE
 
         if (len(distinct_cards) == 3):
-            count_card1 = len(re.findall(re.escape(cards_adj[0]), cards_adj))
-            count_card2 = len(re.findall(re.escape(cards_adj[1]), cards_adj))
-            count_card3 = len(re.findall(re.escape(cards_adj[3]), cards_adj))
+            count_card1 = len(re.findall(re.escape(self.WildCards[0]), self.WildCards))
+            count_card2 = len(re.findall(re.escape(self.WildCards[1]), self.WildCards))
+            count_card3 = len(re.findall(re.escape(self.WildCards[3]), self.WildCards))
             if (count_card1 == 3 or count_card2 == 3 or count_card3 == 3):
                 return THREE_OF_A_KIND
 
@@ -94,9 +93,9 @@ class Hand:
     
     
     def __lt__(self, other):
-        if(self.rank < other.rank):
+        if(self.hand_type < other.hand_type):
             return True
-        elif(self.rank > other.rank):
+        elif(self.hand_type > other.hand_type):
             return False
         else:
             for(card1, card2) in zip(self.Hand, other.Hand):
@@ -107,9 +106,9 @@ class Hand:
                 
     
     def __gt__(self, other):
-        if(self.rank > other.rank):
+        if(self.hand_type > other.hand_type):
             return True
-        elif(self.rank < other.rank):
+        elif(self.hand_type < other.hand_type):
             return False
         else:
             for(card1, card2) in zip(self.Hand, other.Hand):
@@ -136,6 +135,12 @@ hand_set.sort()
 
 winnings = 0
 for idx, hand in enumerate(hand_set):
+    if (hand.Cards != hand.WildCards):
+        print(str(idx) + ": " + hand.WildCards + " (" + hand.Cards + ")")
+    else:
+        print(str(idx) + ": " + hand.Cards)
     winnings += ((idx + 1) * int(hand.bid))
 
 print(winnings)
+
+#part two: 251003917
