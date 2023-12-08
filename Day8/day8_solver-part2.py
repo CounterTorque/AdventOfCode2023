@@ -1,4 +1,5 @@
 import os
+import math
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 file_path = os.path.join(base_dir, "input.txt")
@@ -12,6 +13,13 @@ class Element:
         self.left = left.strip()
         self.right = right.strip()
 
+class ParseStep:
+    def __init__(self, cur_node):
+        self.cur_node = cur_node
+        self.total_steps = 0
+
+    def isEnd(self):
+        return self.cur_node.endswith("Z")
 
 def extract_data(file_path):
     elements = {}
@@ -31,14 +39,21 @@ def extract_data(file_path):
 
             
     return  elements, instructions
+
+def find_starting_nodes(elements):
+    starting_nodes = []
+    for key in elements:
+        if key.endswith("A"):
+            starting_nodes.append(key)
+    return starting_nodes
         
 
-def walk_instructions(first_elem, elements, instructions):
+def walk_full_instructions(first_elem, elements, instructions):
     cur_instruction = 0
     cur_step = 0
     cur_node = first_elem
 
-    while cur_node != "ZZZ":
+    while not cur_node.endswith("Z"):
         if cur_instruction == len(instructions):
             cur_instruction = 0
 
@@ -52,8 +67,15 @@ def walk_instructions(first_elem, elements, instructions):
 
     return cur_step
 
-
 elements, instructions = extract_data(file_path)
-total_steps = walk_instructions("AAA", elements, instructions)
+starting_nodes = find_starting_nodes(elements)
+parse_steps = []
+for node in starting_nodes:
+    parse_step = ParseStep(node)
+    parse_step.total_steps = walk_full_instructions(node, elements, instructions)
+    parse_steps.append(parse_step) 
+    
+total_steps = math.lcm(*[parse_step.total_steps for parse_step in parse_steps])
 
-print(total_steps) #16343 Part 1
+
+print(total_steps) #day 8 part 2 15299095336639
