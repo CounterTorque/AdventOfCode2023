@@ -3,9 +3,6 @@ import os
 base_dir = os.path.dirname(os.path.abspath(__file__))
 file_path = os.path.join(base_dir, "input.txt")
 
-cur_instruction = 0
-cur_step = 0
-
 class Element:
     def __init__(self, name, left, right):
         self.name = name.strip()
@@ -20,37 +17,38 @@ def extract_data(file_path):
         for line in file:
             line = line.strip()
             if len(instructions) == 0:                
-                instructions = [char for char in line]
+                instructions = list(line)
                 continue
-            elif line == "":
+
+            if line == "":
                 continue
-            else:
-                key, nodes = line.split(" = ")
-                left, right = nodes.split(",")
-                elements[key] = Element(key, left.strip("("), right.rstrip(")"))
+            
+            key, nodes = line.split(" = ")
+            left, right = nodes.split(",")
+            elements[key] = Element(key, left.strip("("), right.rstrip(")"))
 
             
     return  elements, instructions
         
 
 def walk_instructions(first_elem, elements, instructions):
-    cur_instruction = 0
-    cur_step = 0
-    cur_node = first_elem
+    current_instruction = 0
+    current_step = 0
+    current_node = first_elem
 
-    while cur_node != "ZZZ":
-        if cur_instruction == len(instructions):
-            cur_instruction = 0
+    while current_node != "ZZZ":
+        if current_instruction == len(instructions):
+            current_instruction = 0
 
-        next_dir = instructions[cur_instruction]
+        next_dir = instructions[current_instruction]
         if next_dir == "R":
-            cur_node = elements[cur_node].right
+            current_node = elements[current_node].right
         elif next_dir == "L":
-            cur_node = elements[cur_node].left
-        cur_instruction += 1
-        cur_step += 1
+            current_node = elements[current_node].left
+        current_instruction += 1
+        current_step += 1
 
-    return cur_step
+    return current_step
 
 
 elements, instructions = extract_data(file_path)

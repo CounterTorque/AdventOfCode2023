@@ -4,9 +4,6 @@ import math
 base_dir = os.path.dirname(os.path.abspath(__file__))
 file_path = os.path.join(base_dir, "input.txt")
 
-cur_instruction = 0
-cur_step = 0
-
 class Element:
     def __init__(self, name, left, right):
         self.name = name.strip()
@@ -18,7 +15,7 @@ class ParseStep:
         self.cur_node = cur_node
         self.total_steps = 0
 
-    def isEnd(self):
+    def is_end(self):
         return self.cur_node.endswith("Z")
 
 def extract_data(file_path):
@@ -40,32 +37,29 @@ def extract_data(file_path):
             
     return  elements, instructions
 
-def find_starting_nodes(elements):
-    starting_nodes = []
-    for key in elements:
-        if key.endswith("A"):
-            starting_nodes.append(key)
+def find_starting_nodes(keys):
+    starting_nodes = [key for key in keys if key.endswith("A")]
     return starting_nodes
         
 
 def walk_full_instructions(first_elem, elements, instructions):
-    cur_instruction = 0
-    cur_step = 0
-    cur_node = first_elem
+    current_instruction = 0
+    current_step = 0
+    current_node = first_elem
 
-    while not cur_node.endswith("Z"):
-        if cur_instruction == len(instructions):
-            cur_instruction = 0
+    while not current_node.endswith("Z"):
+        if current_instruction == len(instructions):
+            current_instruction = 0
 
-        next_dir = instructions[cur_instruction]
+        next_dir = instructions[current_instruction]
         if next_dir == "R":
-            cur_node = elements[cur_node].right
+            current_node = elements[current_node].right
         elif next_dir == "L":
-            cur_node = elements[cur_node].left
-        cur_instruction += 1
-        cur_step += 1
+            current_node = elements[current_node].left
+        current_instruction += 1
+        current_step += 1
 
-    return cur_step
+    return current_step
 
 elements, instructions = extract_data(file_path)
 starting_nodes = find_starting_nodes(elements)
