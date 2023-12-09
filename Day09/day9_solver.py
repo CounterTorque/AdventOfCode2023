@@ -34,6 +34,19 @@ class Sequence:
           #Everyone always returns the last number
           return self.sequence[-1]
      
+     def generate_prev(self):
+          if self.child:
+               #get the previous number to add
+               child_prev = self.child.generate_prev()
+               cur_first = self.sequence[0]
+               self.sequence.insert(0, cur_first - child_prev)
+          else:
+               #bottom children are all 0s
+               self.sequence.insert(0, 0)
+
+          #Everyone always returns the first number
+          return self.sequence[0]
+     
 
 def extract_data(file_path):
     sequence_list = []
@@ -45,7 +58,7 @@ def extract_data(file_path):
 
     return sequence_list
 
-def build_out_sequence(sequence_list):
+def build_out_next_sequence(sequence_list):
      total_count = 0
      for sequence in sequence_list:
           next_sequence = sequence.generate_next()
@@ -53,8 +66,20 @@ def build_out_sequence(sequence_list):
      
      return total_count
 
+
+def build_out_prev_sequence(sequence_list):
+     total_count = 0
+     for sequence in sequence_list:
+          prev_sequence = sequence.generate_prev()
+          total_count += prev_sequence
+     
+     return total_count
+
          
 sequence_list = extract_data(file_path)
-total_count = build_out_sequence(sequence_list)
-print(total_count)
+total_count_next = build_out_next_sequence(sequence_list)
+print("Part 1: ", total_count_next)
+
+total_count_prev = build_out_prev_sequence(sequence_list)
+print("Part 2: ", total_count_prev)
 
