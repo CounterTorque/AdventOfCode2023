@@ -3,11 +3,58 @@ import os
 base_dir = os.path.dirname(os.path.abspath(__file__))
 file_path = os.path.join(base_dir, "input.txt")
 
+class Sequence:
+     def __init__(self, sequence, parent=None):
+          self.sequence = sequence
+          self.parent = parent
+          self.child = self.build_child(sequence)
+
+     def build_child(self, sequence):
+          if all(number == 0 for number in sequence):
+               return None
+          
+          sub_sequence = []
+          for i in range(len(sequence)-1):
+               left = sequence[i]
+               right = sequence[i+1]
+               sub_sequence.append(right-left)
+
+          return Sequence(sub_sequence, self)
+     
+     def generate_next(self):
+          if self.child:
+               #get the next number to add
+               child_next = self.child.generate_next()
+               cur_last = self.sequence[-1]
+               self.sequence.append(cur_last + child_next)
+          else:
+               #bottom children are all 0s
+               self.sequence.append(0)
+
+          #Everyone always returns the last number
+          return self.sequence[-1]
+     
+
 def extract_data(file_path):
+    sequence_list = []
     with open(file_path, 'r') as file:
          for line in file:
-              return
-         
-extract_data(file_path)
+              line = line.strip()
+              numbers = [int(number) for number in line.split(" ")]
+              sequence_list.append(Sequence(numbers))
 
+    return sequence_list
+
+def build_out_sequence(sequence_list):
+     total_count = 0
+     for sequence in sequence_list:
+          next_sequence = sequence.generate_next()
+          total_count += next_sequence
+     
+     return total_count
+
+         
+sequence_list = extract_data(file_path)
+total_count = build_out_sequence(sequence_list)
+print(total_count)
 
