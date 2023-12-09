@@ -41,11 +41,8 @@ class Hand:
         if not re.search(r'J', cards):
             return cards, hand
         
-       
-        #Bug Most common character should not be allowed to be J
-        #if all 5 are J then it should be A's
         best_card_letter = "A"
-        if (len(set(hand)) > 1):
+        if len(set(hand)) > 1:
             hand_sorted = sorted(hand)
             cards_sorted = [card_names[card_id] for card_id in hand_sorted if card_id != card_names.index("J")] 
             best_card_letter = most_common_character(cards_sorted)
@@ -65,28 +62,28 @@ class Hand:
         return card_adj, hand_adj
    
     def calculate_hand_type(self):
-
         distinct_cards = set(self.WildHand)
-        if (len(distinct_cards) == 1): 
+
+        if len(distinct_cards) == 1: 
             return FIVE_OF_A_KIND
        
-        if (len(distinct_cards) == 2):
+        if len(distinct_cards) == 2:
             count_card1 = len(re.findall(re.escape(self.WildCards[0]), self.WildCards))
-            if (count_card1 == 4 or count_card1 == 1):
+            if count_card1 == 4 or count_card1 == 1:
                 return FOUR_OF_A_KIND
                         
             return FULL_HOUSE
 
-        if (len(distinct_cards) == 3):
+        if len(distinct_cards) == 3:
             count_card1 = len(re.findall(re.escape(self.WildCards[0]), self.WildCards))
             count_card2 = len(re.findall(re.escape(self.WildCards[1]), self.WildCards))
             count_card3 = len(re.findall(re.escape(self.WildCards[3]), self.WildCards))
-            if (count_card1 == 3 or count_card2 == 3 or count_card3 == 3):
+            if count_card1 == 3 or count_card2 == 3 or count_card3 == 3:
                 return THREE_OF_A_KIND
 
             return TWO_PAIR
         
-        if (len(distinct_cards) == 4):
+        if len(distinct_cards) == 4:
             return ONE_PAIR
         
         return HIGH_CARD
@@ -135,7 +132,7 @@ hand_set.sort()
 
 winnings = 0
 for idx, hand in enumerate(hand_set):
-    if (hand.Cards != hand.WildCards):
+    if hand.Cards != hand.WildCards:
         print(str(idx) + ": " + hand.WildCards + " (" + hand.Cards + ")")
     else:
         print(str(idx) + ": " + hand.Cards)
