@@ -1,14 +1,17 @@
 import os
-
+import sys
 base_dir = os.path.dirname(os.path.abspath(__file__))
 file_path = os.path.join(base_dir, "input.txt")
+
+EMPTY = "((.)) "
+OUTSIDE = "      "
 
 class PipeSegment:
      def __init__(self, y, x, type):
           self.y = y
           self.x = x
           self.type = type
-          self.step_number = " (()) "
+          self.step_number = EMPTY
 
      def connections(self):
           if self.type == "|":
@@ -54,7 +57,7 @@ def start_connections(pipe_segement: PipeSegment, pipe_map:[[]]):
                if pipe_check.type == "|" or pipe_check.type == "7" or pipe_check.type == "F":
                     connections.append((up, pipe_segement.x))
           
-          if down < len(pipe_map[0]):
+          if down < len(pipe_map):
                pipe_check = pipe_map[down][pipe_segement.x]
                if pipe_check.type == "|" or pipe_check.type == "L" or pipe_check.type == "J":
                     connections.append((down, pipe_segement.x))
@@ -64,7 +67,7 @@ def start_connections(pipe_segement: PipeSegment, pipe_map:[[]]):
                if pipe_check.type == "-" or pipe_check.type == "L" or pipe_check.type == "F":
                     connections.append((pipe_segement.y, left))
 
-          if right < len(pipe_map):
+          if right < len(pipe_map[0]):
                pipe_check = pipe_map[pipe_segement.y][right]
                if pipe_check.type == "-" or pipe_check.type == "J" or pipe_check.type == "7":
                     connections.append((pipe_segement.y, right))
@@ -92,6 +95,7 @@ def extract_data(file_path: str):
                     pipe_map[y].append(PipeSegment(y, x, char)) 
 
                     if (char == "S"):
+                         pipe_map[y][x].step_number = "SSSSS "
                          start_y = y
                          start_x = x
 
@@ -120,14 +124,37 @@ def walk_pipes(pipe_map:[[]], start_y, start_x):
           cur_a = (pipe_a.y, pipe_a.x)
           cur_b = (pipe_b.y, pipe_b.x)
      
+     pipe_map[next_a[0]][next_a[1]].step_number = "AB.AB "
+     
      return steps
 
 
-         
+def flood_fill_outer(pipe_map = [[]]):
+     sys.setrecursionlimit(6000)
+     height = len(pipe_map)
+     width = len(pipe_map[0])
+     def fill(y, x):
+          if (y < 0) or (y >= height) or (x < 0) or (x >= width):
+               return
+          if pipe_map[y][x].step_number == EMPTY:
+               pipe_map[y][x].step_number = OUTSIDE
+               neighbors =  [(y-1,x),(y+1,x),(y,x-1),(y,x+1)]
+               for n in neighbors:
+                    fill(n[0],n[1])
+     
+     # Assume 0,0 is safe to start with
+     fill(0, 0)
+
+     #known outside
+     fill(66,0)
+     fill(73,0)
+
+
 pipe_map, start_y, start_x = extract_data(file_path)
 farthest_step = walk_pipes(pipe_map, start_y, start_x )
 print("Part 1: ",farthest_step)
 
+flood_fill_outer(pipe_map)
 #debug print map
 
 output_path = os.path.join(base_dir, "output.txt")
@@ -139,8 +166,11 @@ for y in range(len(pipe_map)):
           pipe_segement = pipe_map[y][x]
           output_file.write(pipe_segement.step_number)
           output_file.flush()
-          #print(pipe_segement.step_number, end='')
-     #print('\n')
      output_file.write('\n')
 
 output_file.close()
+
+#part 2 
+# 201 is too low
+# 248 is too low
+# 586 is too high
