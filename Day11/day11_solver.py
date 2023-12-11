@@ -2,6 +2,11 @@ import os
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 file_path = os.path.join(base_dir, "input.txt")
+# Part 1 = 1
+#expansion_size = 1
+
+# Part 2 = 1000000
+expansion_size = 1000000 - 1
 
 def extract_data(file_path: str) -> [[]]:
      galaxy_map = []
@@ -19,33 +24,32 @@ def extract_data(file_path: str) -> [[]]:
 
      return galaxy_map
 
-def expand_map(galaxy_map: [[]]) -> [[]]:
-     
-     y = 0
-     while True:
-          has_y_space = all(item == "." for item in galaxy_map[y])
-          if has_y_space:
-               galaxy_map.insert(y + 1, ["."] * len(galaxy_map[0]))
-               y += 1
-          
-          y += 1
-          if (y >= len(galaxy_map)):
-               break
+
+def count_expansions(dim_expansions: [], start: int, end: int) -> int:
+     if (start > end):
+          start, end = end, start
+
+     count = len([i for i in dim_expansions if start < i < end])
+     return count
 
 
-     x = 0
-     while True:
-          has_x_space = all(item == "." for item in [row[x] for row in galaxy_map])
-          if has_x_space:
-               for row in galaxy_map:
-                    row.insert(x + 1, ".")
-               x += 1
-          
-          x += 1
-          if (x >= len(galaxy_map[0])):
-               break
-               
-     return galaxy_map
+def get_x_expansions(galaxy_map: [[]]) -> []:
+     x_expansions = []
+     for x in range(len(galaxy_map[0])):
+          if all(row[x] == "." for row in galaxy_map):
+               x_expansions.append(x) 
+
+     return x_expansions
+
+
+def get_y_expansions(galaxy_map: [[]]) -> []:
+     y_expansions = []
+     for y in range(len(galaxy_map)):
+          if all(item == "." for item in galaxy_map[y]):
+               y_expansions.append(y) 
+
+     return y_expansions
+
 
 def find_locations(galaxy_map: [[]]) -> [()]:
      locations = []
@@ -58,20 +62,29 @@ def find_locations(galaxy_map: [[]]) -> [()]:
 
 def find_distance(galaxy_locations: [()], galaxy_map: [[]]) -> int:
      distance_total = 0
+     x_expansions = get_x_expansions(galaxy_map)
+     y_expansions = get_y_expansions(galaxy_map)
+
      for index_location in range(len(galaxy_locations)):
           source_location = galaxy_locations[index_location]
           for dest_location in galaxy_locations[index_location + 1:]:
-               distance = abs(source_location[0] - dest_location[0]) + abs(source_location[1] - dest_location[1])
+               expand_x = count_expansions(x_expansions, source_location[1], dest_location[1])
+               expand_y = count_expansions(y_expansions, source_location[0], dest_location[0])
+               source_x = source_location[1] 
+               source_y = source_location[0]
+               dest_x = dest_location[1]
+               dest_y = dest_location[0] 
+               distance = abs(source_y - dest_y) + abs(source_x - dest_x) + (expand_x * expansion_size)+ (expand_y * expansion_size)
                distance_total += distance
           
 
      return distance_total
          
 galaxy_map = extract_data(file_path)
-galaxy_map = expand_map(galaxy_map)
 galaxy_locations = find_locations(galaxy_map)
 total_distance = find_distance(galaxy_locations, galaxy_map)
 
-print("Part 1: " + str(total_distance)) # 10231178
-
+print("Part: " + str(total_distance)) 
+# Part 1 10231178
+# Part 2 622120986954
 
