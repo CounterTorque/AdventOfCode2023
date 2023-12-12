@@ -42,22 +42,25 @@ def generate_permutations(spring_data: SpringRow)-> [str]:
      return built_permutations
 
 def is_valid_solution(solution: str, spec_list:[int]) -> bool:
-     #for each character in solution, check if it matches the next specifier
-     # walk each character
-     # for each spec_list, based on it's size, continue to consume characters from solution
-     # if the current character is not valid for the expected specifier phase, it's not a solution.
-     # this includes if you run out of characters in solution
-
-     idx = 0
      # go ahead and move the solution forward by the '.'s at the head
      solution = solution.lstrip('.')
-     for char in solution:
+     for spec in spec_list:
+          expected_string = "#" * spec
+          if not solution.startswith(expected_string):
+               return False
+          
+          solution = solution[spec:]
+          if len(solution) > 0:
+               if (solution[0] != '.'):
+                    return False
+          
+          solution = solution.lstrip('.')
+     
+     #at this point we have consumed all the specifiers. The rest of the solution must be all '.'
+     if len(solution) > 0:        
+          return False
 
-          #at some point, once you are out of spec_list, we need to verify all remaining characters are '.'s else false
-          pass
-
-
-     return False
+     return True
 
 
 def find_solutions(spring_data):
@@ -81,6 +84,6 @@ spring_data = extract_data(file_path)
 find_solutions(spring_data)
 total_solutions = total_solutions(spring_data)
 
-print(f"Part 1: {total_solutions}")
+print(f"Part 1: {total_solutions}") #7541
 
 
