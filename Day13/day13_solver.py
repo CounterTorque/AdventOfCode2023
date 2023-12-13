@@ -44,23 +44,31 @@ def find_center_h(rows):
 
      return -1
 
+def find_pattern(rows):
+     center = find_center_h(rows)
+     if (center != -1):
+          return center, -1
+
+     #center was not found
+     #transpose the rows and try again against the columns
+     t_rows = ["".join(t) for t in (zip(*rows))]
+     center = find_center_h(t_rows)
+     
+     return -1, center
+     
+
 def calculate_patterns(mirror_mazes) -> int:
      total = 0
      idx = 0
      for mirror_maze in mirror_mazes:
           print(f"Solving {idx}")
-          center = find_center_h(mirror_maze.rows)
-          if (center != -1):
-               total += ((center + 1) * 100)
-               idx += 1
-               continue
+          h, v = find_pattern(mirror_maze.rows)
+          if (h != -1):
+               total += ((h + 1) * 100)
 
-          #center was 0
-          #transpose the rows and try again against the columns
-          t_rows = ["".join(t) for t in (zip(*mirror_maze.rows))]
-          center = find_center_h(t_rows)
-          assert(center != -1)
-          total += (center + 1)
+          if (v != -1):
+               total += (v + 1)
+
           idx += 1
      
      return total
