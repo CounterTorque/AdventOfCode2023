@@ -48,16 +48,13 @@ def is_valid_solution(solution: str, spec_list:[int]) -> bool:
           # Remove the consumed portion from the solution
           solution = solution[spec:]
 
-          # Check if there are remaining characters in the solution
-          if solution and solution[0] != '.':
-               return False
-          
-          solution = solution.lstrip('.')
+          # The next character should always be a dot
+          if solution: 
+               if solution[0] != '.':
+                    return False
+               
+               solution = solution.lstrip('.')
      
-
-     if solution:
-          return False
-
      return True
 
 
@@ -65,24 +62,19 @@ def find_solutions(spring_data):
      options = ['#', '.']
 
      for row in spring_data:
-          #simplify the data
-          record_check = row.records
-          max_spec = sum(row.spec_list)
-
-          permutations = itertools.product(options, repeat=record_check.count('?'))
+          replaced_source = row.records.replace('?', '{}')
+          max_spec = sum(row.spec_list) - replaced_source.count('#')
+          r = row.records.count('?')
+          permutations = itertools.product(options, repeat=r)
 
           for permutation in permutations:
-               result = record_check
-               for replacement in permutation:
-                    result = result.replace('?', replacement, 1)
-                    
-               # precheck
-               if result.count('#') != max_spec:
+               if permutation.count('#') != max_spec:
                     continue
+
+               result = replaced_source.format(*permutation)
 
                if is_valid_solution(result, row.spec_list):
                     row.total_solutions += 1
-
 
           print(row.total_solutions)
 
@@ -107,6 +99,4 @@ total_solutions = total_solutions(spring_data)
 print(f"total solutions: {total_solutions}") #7541
 profiler.disable()
 profiler.print_stats()
-
-#12303440 function calls (12303436 primitive calls) in 3.344 seconds
 
