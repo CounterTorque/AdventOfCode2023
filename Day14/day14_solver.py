@@ -71,12 +71,16 @@ def calculate_load(mirror_map):
 
 
 def hash_mirrors(mirror_map):
-     return hashlib.md5(str(mirror_map).encode('utf-8')).hexdigest()
+     str_hash = ""
+     for sub_map in mirror_map:
+           str_hash += ''.join(sub_map)
+
+     return hashlib.md5(str_hash.encode('utf-8')).hexdigest()
 
 
 mirror_map = extract_data(file_path)
 
-def spin_cycle(mirror_map, cycle_stop):
+def spin_cycle(mirror_map, cycle_stop, next_direction = "N"):
 
      cycle = 0
      y_max = len(mirror_map)
@@ -87,68 +91,50 @@ def spin_cycle(mirror_map, cycle_stop):
      cache[start_hash] = 0
 
      while True:
-          if (cycle == cycle_stop):
-               break
-          #"N"
-          tilt_map_vertical(mirror_map, -1, y_max)
+
+          if next_direction == "N":
+               tilt_map_vertical(mirror_map, -1, y_max)
+               next_direction = "W"
+          elif next_direction == "W":
+               tilt_map_horizontal(mirror_map, -1, x_max)
+               next_direction = "S"
+          elif next_direction == "S":
+               tilt_map_vertical(mirror_map, 1, y_max)
+               next_direction = "E"
+          elif next_direction == "E":
+               tilt_map_horizontal(mirror_map, 1, x_max)
+               next_direction = "N"
+                    
+          load = calculate_load(mirror_map)
+          print(f"Cycle: {cycle}, Direction {next_direction}, Load: {load}")
           cycle += 1    
-          if (cycle == cycle_stop):
+          hash_val = hash_mirrors(mirror_map)
+          if hash_val in cache:
                break
-          
-          if (cycle == 10 or cycle == 38 or cycle == 66):
-               print(mirror_map)
-
-          hash_val = hash_mirrors(mirror_map)
-          #if hash_val in cache:
-               #break
-          #cache[hash_val] = cycle
-
-          #"W"
-          tilt_map_horizontal(mirror_map, -1, x_max)
-          cycle += 1    
+          cache[hash_val] = cycle
           if (cycle == cycle_stop):
-               break
+               break         
+     
 
-          if (cycle == 10 or cycle == 38 or cycle == 66):
-               print(mirror_map)
-          hash_val = hash_mirrors(mirror_map)
-          #if hash_val in cache:
-               #break
-          #cache[hash_val] = cycle
-          
-          #"S"
-          tilt_map_vertical(mirror_map, 1, y_max)
-          cycle += 1
+     if (cycle == cycle_stop):
+          return 0, next_direction
+     #now we've hit a loop. 
+     #We need to find the first time we hit this
+     hash_val = hash_mirrors(mirror_map)
+     cycle_head = cache[hash_val]
+     cycle_stop_offset = cycle_stop - cycle_head
+     cycle_size = cycle - cycle_head
+     next_match = cycle_stop_offset % cycle_size
 
-          if (cycle == cycle_stop):
-               break
-          if (cycle == 10 or cycle == 38 or cycle == 66):
-               print(mirror_map)
-          hash_val = hash_mirrors(mirror_map)
-          #if hash_val in cache:
-               #break
-          #cache[hash_val] = cycle
-          
-          #"E"
-          tilt_map_horizontal(mirror_map, 1, x_max)
-          cycle += 1
-
-          if (cycle == 10 or cycle == 38 or cycle == 66):
-               print(mirror_map)
-          hash_val = hash_mirrors(mirror_map)
-          #if hash_val in cache:
-               #break
-          #cache[hash_val] = cycle
-
-
-     return cycle
+     return next_match, next_direction
 
 
  #part 1
 #cycles_left = 1
 #part 2
 cycle_stop = 1000000000
-cycles_left = spin_cycle(mirror_map, cycle_stop)
+loop_cycle, next_direction = spin_cycle(mirror_map, cycle_stop)
+loop_cycle_clear = spin_cycle(mirror_map, loop_cycle, next_direction)
 
 
 total_load = calculate_load(mirror_map)
