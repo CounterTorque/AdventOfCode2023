@@ -1,6 +1,7 @@
 import os
 from queue import Queue
 
+
 base_dir = os.path.dirname(os.path.abspath(__file__))
 file_path = os.path.join(base_dir, "input.txt")
 
@@ -27,28 +28,20 @@ class BeamStep:
 
 
 class Beam:
-     def __init__(self, next_step:BeamStep, previous_steps = []):
+     def __init__(self, next_step:BeamStep, previous_steps = set()):
           self.previous_steps = previous_steps
           self.next_step = next_step
 
      def move(self, next_step):
-          self.previous_steps.append(self.next_step)
+          self.previous_steps.add((self.next_step.y, self.next_step.x, self.next_step.direction))
           self.next_step = next_step
 
      def is_cycle(self):
-          visited = set()
-          for t in self.previous_steps:
-               if (t.y, t.x, t.direction) in visited:
-                    return True
-               else:
-                    visited.add((t.y, t.x, t.direction))
-          
-          if (self.next_step.y, self.next_step.x, self.next_step.direction) in visited:
+          if (self.next_step.y, self.next_step.x, self.next_step.direction) in self.previous_steps:
                return True
-          
+                    
           return False
      
-
 
 def extract_data(file_path:str):
      mirror_map = []
@@ -74,7 +67,7 @@ def energize_map(mirror_map):
      
      while not beam_q.empty():
           beam = beam_q.get()
-          print_map(mirror_map)
+          #print_map(mirror_map)
 
           while True:               
                dir_y, dir_x = directions[beam.next_step.direction]
@@ -158,7 +151,6 @@ def print_map(mirror_map):
                     output_file.flush()
                output_file.write('\n')
 
-
 mirror_map = extract_data(file_path)
 energize_map(mirror_map)
 total_energy = count_energized(mirror_map)
@@ -166,3 +158,4 @@ total_energy = count_energized(mirror_map)
 print_map(mirror_map)
 
 print(f"Part 1: {total_energy}") # 8249
+
