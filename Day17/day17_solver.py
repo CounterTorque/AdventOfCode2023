@@ -24,45 +24,72 @@ def extract_data(file_path):
                     heat_map[y].append(int(char))
 
      return heat_map
+
+def print_map(map):
+     output_path = os.path.join(base_dir, "output.txt")
+     with open(output_path, 'w') as output_file:
+          for row in map:
+               for tile in row:
+                    str_o = str(tile).ljust(3, " ")
+                    output_file.write(str_o + ",")
+                    output_file.flush()
+               output_file.write('\n')
          
 def walk_map(heat_map):
      start = (0, 0)
-     
+
      rows = len(heat_map)
      cols = len(heat_map[0])
      end = (rows - 1, cols - 1)
 
-     distance = [[float('inf')] * cols for _ in range(rows)]
-     distance[start[0]][start[1]] = heat_map[start[0]][start[1]]
-     queue = [(heat_map[start[0]][start[1]], start, "S")]
-     heapq.heappush(queue, (heat_map[start[0]][start[1]], start, "E"))
+     #clear out the start, we should never revisit it
+     heat_map[start[0]][start[1]] = 0
 
-     # each x,y indicates how much heat loss would occur if you enter that block
-     # we can only move in the same NESW direction for a total of 3 blocks in a line
-     # Otherwise we can move left or right, but not backwards
-     # We start at 0, 0 and end at y_max-1, x_max-1
+     queue = [(heat_map[start[0]][start[1]], start, "X", 0)]
 
-     #start with just dijkstras
+     seen = set()
+     
      while queue:
-          current_dist, (cur_y, cur_x), direction = heapq.heappop(queue)
+          current_dist, (cur_y, cur_x), direction, step = heapq.heappop(queue)
           
           # Check if we reached the destination
           if (cur_y, cur_x) == end:
-               return distance[cur_y][cur_x]
-          
-          # Check neighbors
+               return current_dist
+
+          if (cur_y, cur_x, direction, step) in seen:
+               continue
+
+          seen.add((cur_y, cur_x, direction, step))
+
+
+          #check if we can move in that direction any further
+          if step < 3 and direction != "X":
+               delta_y, delta_x = directions[direction]
+               new_y, new_x = cur_y + delta_y, cur_x + delta_x
+               if 0 <= new_y < rows and 0 <= new_x < cols:
+                    new_dist = current_dist + heat_map[new_y][new_x]
+                    heapq.heappush(queue, (new_dist, (new_y, new_x), direction, step + 1))
+
+          #handle the other directions
           for dir in directions.keys():
+               #linear direction handled above
+               if (dir == direction):
+                    continue
+
+               # don't go backwards
+               if ((dir == "W" and direction == "E") or 
+                    (dir == "E" and direction == "W")or 
+                    (dir == "N" and direction == "S")or 
+                    (dir == "S" and direction == "N")):
+                    continue
+
                delta_y, delta_x = directions[dir]
                new_y, new_x = cur_y + delta_y, cur_x + delta_x
                
                # Check if the neighbor is within the grid boundaries
                if 0 <= new_y < rows and 0 <= new_x < cols:
                     new_dist = current_dist + heat_map[new_y][new_x]
-                    
-                    # Update the distance if it's shorter
-                    if new_dist < distance[new_y][new_x]:
-                         distance[new_y][new_x] = new_dist
-                         heapq.heappush(queue, (new_dist, (new_y, new_x), dir))
+                    heapq.heappush(queue, (new_dist, (new_y, new_x), dir, 1))
      
      # No path found
      return -1
