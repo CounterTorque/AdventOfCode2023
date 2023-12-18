@@ -66,28 +66,22 @@ def build_map(dig_plans):
      
      return dig_points, total_length
 
-def area_between(point1, point2):
-     avg_h = (point1[1] + point2[1]) / 2
-     width = point2[0] - point1[0]
-     sub_area = width * avg_h
-     return sub_area
 
 def count_area(dig_points):
-     area = 0
+     total_numerator = 0
      for point1, point2 in zip(dig_points, dig_points[1:]):
-          sub_area = area_between(point1, point2)
-          area += sub_area
+          sub_numerator = (point1[0] * point2[1]) - (point1[1] * point2[0])
+          total_numerator += sub_numerator
+
+     area = abs(total_numerator) / 2
 
      return area 
 
 dig_plans = extract_data(file_path)
 dig_points, total_length = build_map(dig_plans)
 total_area = count_area(dig_points)
-total_area += total_length
+total_area += (total_length / 2) + 1
 
-print(f"Part 2: {total_area}") 
-#Test 1 should be 
-#952408144115
-#952398536221.0
+print(f"Part 2: {total_area}") #88007104020978
 
 
