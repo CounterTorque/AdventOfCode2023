@@ -27,10 +27,9 @@ class ConjunctionModule:
           self.connections = connections
           self.stored_input_signal = {}
 
-     def setup_inputs(self, inputs:[str]):
-          assert(self.stored_input_signal.empty())
-          for input in inputs:
-               self.stored_input_signal[input] = LOW
+     def wire_input(self, input:str):
+          self.stored_input_signal[input] = LOW
+
 
 def split_data (line) -> Tuple(str, [str]):
      result = re.split(r'\s*->\s*', line)
@@ -73,14 +72,26 @@ def extract_data(file_path):
                    continue
 
      
+     for b_out in broadcast_module.connections:
+          if b_out in conjunction_modules:
+               conjunction_modules[b_out].wire_input("broadcast")
+
      for con_module in conjunction_modules:
-          
-          #have to afterwords wire up inputs
-          # could be broadcast, conjuction, or flipflop
-          pass
+          for con_out in con_module.connections:
+               if con_out in conjunction_modules:
+                    conjunction_modules[con_out].wire_input(con_module.name)
+     
+     for ff_module in flipflop_modules:
+          for ff_out in ff_module.connections:
+               if ff_out in conjunction_modules:
+                    conjunction_modules[ff_out].wire_input(ff_module.name)
+
+     return broadcast_module, flipflop_modules, conjunction_modules
+
 
      
          
-extract_data(file_path)
+b_mods, f_mods, c_mods = extract_data(file_path)
+
 
 
