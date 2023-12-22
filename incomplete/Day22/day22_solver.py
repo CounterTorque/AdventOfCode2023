@@ -112,6 +112,18 @@ def extract_data(file_path):
      return bricks, volume, (x_max, y_max, z_max)
          
 
+def get_below(volume, head, tail, z_below):
+
+     below = []
+     for chk_y in range(head[Y], tail[Y]+1):
+          for chk_x in range(head[X], tail[X]+1):
+               chk_voxel = volume[chk_x, chk_y, z_below]
+               if chk_voxel != EMPTY and chk_voxel not in below:
+                    below.append(chk_voxel)
+                    
+     return below     
+
+
 def settle_bricks(bricks, volume, size):
           
      print_volume(volume, size)
@@ -130,23 +142,11 @@ def settle_bricks(bricks, volume, size):
 
                               seen.append(voxel)
                               brick = bricks[voxel]
-                              x_head = brick.head[X]
-                              x_tail = brick.tail[X]
-
-                              y_head = brick.head[Y]
-                              y_tail = brick.tail[Y]
                               z_low = min(brick.head[Z], brick.tail[Z])
 
-                              clear = True
-                              for chk_y in range(y_head, y_tail+1):
-                                   for chk_x in range(x_head, x_tail+1):
-                                        chk_voxel = volume[chk_x, chk_y, z_low-1]
-                                        if chk_voxel != EMPTY:
-                                             clear = False
-                                             break
-                              
-                              if clear == True:
-                                   
+                              below_items = get_below(volume, brick.head, brick.tail, z_low-1)
+
+                              if not below_items:                             
                                    #clear the current voxel space
                                    set_volume(volume, brick, EMPTY)
                                    #set the brick z's to -1
@@ -187,14 +187,30 @@ def find_dis(bricks, volume):
 
                          seen.append(voxel)
                          brick = bricks[voxel]
+
                          #now look directly above this brick
                          #collect all bricks that are above it
+                         above = []
+                         z_above = max(brick.head[Z], brick.tail[Z]) + 1 #the z of the above brick.
+                         for chk_y in range(brick.head[Y], brick.tail[Y]+1):
+                              for chk_x in range(brick.head[X], brick.tail[X]+1):
+                                   chk_voxel = volume[chk_x, chk_y, z_above]
+                                   if chk_voxel != EMPTY and chk_voxel not in above:
+                                        above.append(chk_voxel)
+
                          #for each of those bricks then check count the number of bricks below them
-                         #if there is more than 1, then it's safe to remove the original brick
+                         safe = True
+                         for chk_abv in above:
+                              brick_above = bricks[chk_abv]
+                              #if there is more than 1, for all items, then it's safe to remove the original brick
+                              below_items = get_below(volume, brick_above.head, brick_above.tail, z_above-1)
+                              if (len(below_items) <= 1):
+                                   safe = False
+                                   break
 
-                    
-
-              
+                         if safe:
+                              removable.append(voxel)
+                                    
      return len(removable)
 
 
@@ -202,6 +218,6 @@ bricks, volume, size = extract_data(file_path)
 settle_bricks(bricks, volume, size)
 total = find_dis(bricks, volume)
 
-print(f"Part 1: {total}")
+print(f"Part 1: {total}") #416
 
 
