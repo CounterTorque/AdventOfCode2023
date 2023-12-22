@@ -172,17 +172,30 @@ def print_volume(volume, size):
 
 
 def find_dis(bricks, volume):
-     #for each brick
-     #find any bricks that are above it
-     #for each of those bricks find any bricks that are bellow it.
-     #if there is more than 1, then it's safe to remove the original brick
-     for brick_bottom in bricks:
-          for brick_other in bricks:
-               if brick_bottom == brick_other:
-                    continue
-               
-               
-     pass
+     
+     removable = []
+     seen = []
+     for z in range(LOWEST_Z, size[Z]):
+               for y in range(size[Y]):
+                    for x in range(size[X]):
+                         voxel = volume[x, y, z]
+                         if voxel == EMPTY:
+                              continue
+
+                         if voxel in seen:
+                              continue
+
+                         seen.append(voxel)
+                         brick = bricks[voxel]
+                         #now look directly above this brick
+                         #collect all bricks that are above it
+                         #for each of those bricks then check count the number of bricks below them
+                         #if there is more than 1, then it's safe to remove the original brick
+
+                    
+
+              
+     return len(removable)
 
 
 bricks, volume, size = extract_data(file_path)
