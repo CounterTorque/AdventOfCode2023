@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import copy
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 file_path = os.path.join(base_dir, "input.txt")
@@ -126,8 +127,8 @@ def get_below(volume, head, tail, z_below):
 
 def settle_bricks(bricks, volume, size):
           
-     print_volume(volume, size)
-
+     #print_volume(volume, size)
+     sunk_bricks = []
      while True:
           seen = []
           sunk = False
@@ -151,8 +152,11 @@ def settle_bricks(bricks, volume, size):
                                    set_volume(volume, brick, EMPTY)
                                    #set the brick z's to -1
                                    did_lower = brick.lower(1)
-                                   if sunk == False and did_lower:
+                                   if did_lower:
+                                        if brick.name not in sunk_bricks:
+                                             sunk_bricks.append(brick.name)
                                         sunk = True
+                                   
                                    #reset the new voxel space to name
                                    set_volume(volume, brick, brick.name)
      
@@ -160,7 +164,7 @@ def settle_bricks(bricks, volume, size):
           if sunk == False:
                break
 
-     print_volume(volume, size)
+     return len(sunk_bricks)
 
 
 def print_volume(volume, size):
@@ -171,7 +175,7 @@ def print_volume(volume, size):
      
 
 
-def find_dis(bricks, volume):
+def safe_bricks(bricks, volume):
      
      removable = []
      seen = []
@@ -211,13 +215,42 @@ def find_dis(bricks, volume):
                          if safe:
                               removable.append(voxel)
                                     
-     return len(removable)
+     return removable
 
+
+def dust_and_settle(bricks, volume, size, remove_list):
+     total_moved = 0
+     #make a deep copy of the volume and bricks
+     brick_master = copy.deepcopy(bricks)
+     volume_master = np.copy(volume)
+     for name in remove_list:
+          print(f"removing {name}")
+          #reset to the deep copy
+          bricks = copy.deepcopy(brick_master)
+          volume = np.copy(volume_master)
+          
+          #remove the brick
+          brick = bricks[name]
+          set_volume(volume, brick, EMPTY)
+          bricks.pop(name)
+
+          #run the settle sim again
+          moved = settle_bricks(bricks, volume, size)
+          total_moved += moved
+
+     return total_moved
 
 bricks, volume, size = extract_data(file_path)
 settle_bricks(bricks, volume, size)
-total = find_dis(bricks, volume)
+safe_list = safe_bricks(bricks, volume)
 
-print(f"Part 1: {total}") #416
+#get the list of all brick names. remove the safe list from it. 
+remove_list = list(bricks.keys())
+for name in safe_list:
+     remove_list.remove(name)
+
+total = dust_and_settle(bricks, volume, size, remove_list)
+
+print(f"Part 2: {total}") #60963
 
 
