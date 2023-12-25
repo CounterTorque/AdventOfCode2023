@@ -1,5 +1,4 @@
 import os
-import re
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 file_path = os.path.join(current_dir, "input.txt")
@@ -8,21 +7,14 @@ max_red = 12
 max_green = 13
 max_blue = 14
 
-#for each line in input
-#parse the line into a dictionary of game ids and its list of sets of colors
-
-# Create an empty dictionary to store game ids and their sets of colors
 game_dict = {}
 
 def parse_color_group(group):
-    # Split the group into values without regard to order delimited by comma
     values = group.split(',')
 
-    # Then split them into number and name delimited by space
     color_dict = {}
     for value in values:
-        value = value.strip()
-        count, color_name = value.split(' ')
+        count, color_name = value.strip().split(' ')
         color_dict[color_name] = count
 
     #now find which color_name is red, green, and blue, if any
@@ -43,7 +35,7 @@ def parse_line(color_groups):
 
         r, g, b = parse_color_group(group)
         color_set = [r, g, b]
-        color_sets.append(color_set)
+        color_sets.append([color_set])
 
     return color_sets
 
@@ -61,7 +53,7 @@ def validate(color_sets):
 def build(file_path):
     with open(file_path, 'r') as file:
         for idx, line in enumerate(file, start=1):
-            game_id, color_groups = line.strip().split(':')
+            _, color_groups = line.strip().split(':')
             game_dict[idx] = parse_line(color_groups)
 
 
@@ -97,7 +89,7 @@ def solve_part2(game_dict):
 
 
 build(file_path)
-solve_part1(game_dict)
-solve_part2(game_dict)
+solve_part1(f"Part 1: {game_dict}")
+solve_part2(f"Part 2: {game_dict}")
 
 
