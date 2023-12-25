@@ -14,7 +14,8 @@ def parse_color_group(group):
 
     color_dict = {}
     for value in values:
-        count, color_name = value.strip().split(' ')
+        value = value.strip()
+        count, color_name = value.split(' ')
         color_dict[color_name] = count
 
     #now find which color_name is red, green, and blue, if any
@@ -22,7 +23,7 @@ def parse_color_group(group):
     g = color_dict.get('green', 0)
     b = color_dict.get('blue', 0)
 
-    return int(r), int(g), int(b)
+    return [int(r), int(g), int(b)]
 
 
 # Open the input file and iterate over each line
@@ -32,10 +33,7 @@ def parse_line(color_groups):
     # Split the color_groups into a list of sets
     for group in color_groups.split(';'):
         group = group.strip()
-
-        r, g, b = parse_color_group(group)
-        color_set = [r, g, b]
-        color_sets.append([color_set])
+        color_sets.append(parse_color_group(group))
 
     return color_sets
 
@@ -55,7 +53,6 @@ def build(file_path):
         for idx, line in enumerate(file, start=1):
             _, color_groups = line.strip().split(':')
             game_dict[idx] = parse_line(color_groups)
-
 
 
 def solve_part1(game_dict):
@@ -89,7 +86,7 @@ def solve_part2(game_dict):
 
 
 build(file_path)
-solve_part1(f"Part 1: {game_dict}")
-solve_part2(f"Part 2: {game_dict}")
+solve_part1(game_dict)
+solve_part2(game_dict)
 
 
