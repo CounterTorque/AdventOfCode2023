@@ -34,20 +34,10 @@ class LookupMap:
 
 
 def init_seeds(seed_set, seed_strings):
-    is_start = True
-    seed_start = 0
     for seed in seed_strings:
-        if is_start:
-            seed_start = int(seed)
-            is_start = False
-            continue
-        
-        is_start = True
-        seed_range = int(seed)
-        for seed_num in range(seed_start, seed_range + seed_start):
-            next_seed = SeedData()
-            next_seed.SeedNumber = seed_num
-            seed_set.append(next_seed)
+        next_seed = SeedData()
+        next_seed.SeedNumber = int(seed)
+        seed_set.append(next_seed)
 
 
 def extract_data(file_path): 
@@ -106,7 +96,5 @@ def find_item(search_number, lookup_maps):
 
 seed_set, lookup_maps = extract_data(file_path)
 build_full_seed(seed_set, lookup_maps)
-# Part 1 (pre split 199602917)
-#This solves part 2 only
 lowest_location = min(seed.Location for seed in seed_set)
-print(lowest_location)
+print(f"Part 1: {lowest_location}") # 199602917

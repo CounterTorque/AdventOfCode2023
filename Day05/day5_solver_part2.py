@@ -118,4 +118,4 @@ def find_item(search_number, lookup_maps):
 seed_set, lookup_maps = extract_data(file_path)
 sort_maps(lookup_maps)
 lowest_location = find_lowest_location(seed_set, lookup_maps)
-print(lowest_location) #2254686
+print(f"Part 2: {lowest_location}") # 2254686
