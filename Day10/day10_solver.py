@@ -231,9 +231,3 @@ def print_output_map(base_dir, pipe_map):
 
 print_output_map(base_dir, pipe_map)
 
-
-
-#part 2 
-# 201 is too low
-# 248 is too low
-# 586 is too high
