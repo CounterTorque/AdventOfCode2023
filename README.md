@@ -54,9 +54,9 @@ If tests exist, they are pytest and are located in the root folder of all days, 
 
 [![Day](https://badgen.net/badge/21/%E2%98%85%E2%98%86/yellow)](Day21)
 [![Day](https://badgen.net/badge/22/%E2%98%86%E2%98%85/green)](Day22)
-[![Day](https://badgen.net/badge/23/%E2%98%86%E2%98%86/gray)](Day23)
-[![Day](https://badgen.net/badge/24/%E2%98%86%E2%98%86/gray)](Day24)
-[![Day](https://badgen.net/badge/25/%E2%98%86%E2%98%86/gray)](Day25)
+[![Day](https://badgen.net/badge/23/%E2%98%85%E2%98%86/yellow)](Day23)
+[![Day](https://badgen.net/badge/24/%E2%98%85%E2%98%86/yellow)](Day24)
+[![Day](https://badgen.net/badge/25/%E2%98%85%E2%98%86/yellow)](Day25)
 
 
 <!--SOLUTIONS-->
