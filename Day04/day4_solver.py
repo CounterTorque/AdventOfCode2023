@@ -14,8 +14,6 @@ class ScratchCard:
         self.CardPoints = 0
 
 
-
-
 def build(file_path): 
     scratch_cards = []
 
@@ -59,7 +57,7 @@ def generate_points_and_copies(scratch_cards):
                 break
             scratch_cards[next_card_number].Copies += copy_count
 
-    print(total_score)
+    print(f"Part 1: {total_score}")
     #17803 Part 1
 
 
@@ -67,7 +65,7 @@ def count_copies(scratch_cards):
     total_copies = 0
     for scratch_card in scratch_cards:
         total_copies += scratch_card.Copies
-    print(total_copies)
+    print(f"Part 2: {total_copies}") 
     #5554894 Part 2
 
 scratch_cards = build(file_path)
