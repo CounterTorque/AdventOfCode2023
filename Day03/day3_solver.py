@@ -81,7 +81,8 @@ def sum_includes(number_entries_by_line):
         for number_entry in number_entries_by_line[line]:
             if number_entry.Include:
                 total_sum += number_entry.Number
-    print(total_sum)
+
+    return total_sum
 
 
 def calculate_gears(symbol_entries_by_line):
@@ -97,16 +98,18 @@ def calculate_gears(symbol_entries_by_line):
            gear_ratio = symbol_entry.GearNumbers[0] * symbol_entry.GearNumbers[1]
            total_sum += gear_ratio
            
-   print(total_sum)
+   return total_sum
 
 
 build(file_path)
 
 #Part 1
 find_includes(number_entries_by_line)
-sum_includes(number_entries_by_line)
+part_1 = sum_includes(number_entries_by_line)
+print(f"Part 1: {part_1}")
 #546312
 
 #Part 2
-calculate_gears(symbol_entries_by_line)
+part_2 = calculate_gears(symbol_entries_by_line)
+print(f"Part 2: {part_2}")
 #87449461
