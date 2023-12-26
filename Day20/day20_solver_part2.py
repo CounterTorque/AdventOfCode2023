@@ -58,7 +58,6 @@ class ConjunctionModule(BaseModule):
           self.stored_input_signal[input] = LOW
      
      def InPulse(self, src_name, pulse) -> int:
-          #assert(src_name in self.stored_input_signal)
           self.stored_input_signal[src_name] = pulse
 
           if all([x == HIGH for x in self.stored_input_signal.values()]):
@@ -113,19 +112,13 @@ def extract_data(file_path):
 
 
 def push_button(modules):
-     #button sends single low to b_mod
      rx_low = 0
-     
-     pulse_q = deque()
-     
-     b_mod = modules["broadcaster"]
-     for out in b_mod.connections:
-          pulse_q.append(("broadcaster", out, LOW))
 
-     while bool(pulse_q):
+     pulse_q = [("broadcaster", out, LOW) for out in modules["broadcaster"].connections]   
+
+     while pulse_q:
           src_name, dst_name, pulse = pulse_q.pop()
-               
-          #todo handle when the output doesn't exist in the modules
+
           if dst_name not in modules:
                if dst_name == 'rx' and pulse == LOW:
                     rx_low += 1
@@ -165,4 +158,8 @@ print(f"Part 2: {total_presses}")
 #1,000,000,000 to low
 #10,000,000,000 not it
 
+#I'm pretty sure you need to work backwards.
+#starting from rx, you know the state you want that to be in, so then you look at each of it's connections
+#and then fingure out what state they should be in. Follow this all the way down to the broadcaster.
+#I'm not sure what you do with that information though. I'm assuming you can calculate multiples based on inputs or something.
 
