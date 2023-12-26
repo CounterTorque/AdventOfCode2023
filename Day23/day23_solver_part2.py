@@ -79,19 +79,10 @@ def walk_map(hiking_map, start, end):
      return longest_path - 1
 
 
-def print_map(map):
-     output_path = os.path.join(base_dir, "output.txt")
-     with open(output_path, 'w') as output_file:
-          for row in map:
-               for tile in row:
-                    output_file.write(tile + ",")
-                    output_file.flush()
-               output_file.write('\n')
-
 hiking_map = extract_data(file_path)
 start, end = find_start_and_end(hiking_map)
 path_length = walk_map(hiking_map, start, end)
 
-print(f"Part 2: {path_length}") #
+print(f"Part 2: {path_length}") #6418 (Note: This took approx 56 hours to return the answer)
 
 
